@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "329826675492",
+    "project_id": "otp-primjer",
+    "storage_bucket": "otp-primjer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:329826675492:android:deba692135f0925aaae1b1",
+        "android_client_info": {
+          "package_name": "com.example.otpprimjer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_Vx_gWHNpNaS5WJ4JMXEeFqYczOEi_7k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
