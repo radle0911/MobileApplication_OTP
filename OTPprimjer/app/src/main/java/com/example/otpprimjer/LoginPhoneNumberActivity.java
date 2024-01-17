@@ -13,7 +13,6 @@ import com.hbb20.CountryCodePicker;
 
 public class LoginPhoneNumberActivity extends AppCompatActivity {
 
-    //dodavamo varijable
     CountryCodePicker countryCodePicker;
     EditText phoneInput;
     Button sendOtpButton;
@@ -24,32 +23,28 @@ public class LoginPhoneNumberActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_phone_number);
 
-        //povezujemo varijable sa id u xml file
+        // Connect variables with IDs in the XML file
         countryCodePicker = findViewById(R.id.login_country_code);
         phoneInput = findViewById(R.id.login_mobile_number);
         sendOtpButton = findViewById(R.id.send_otp_button_login);
         progressBar = findViewById(R.id.login_progress_bar);
 
-        // gasimo progres barr
+        // Hide the progress bar
         progressBar.setVisibility(View.GONE);
 
-        // povezujemo countryCode sa edit text-om
+        // Connect countryCode with the EditText
         countryCodePicker.registerCarrierNumberEditText(phoneInput);
         sendOtpButton.setOnClickListener(v -> {
-            // provjeravamo da li je broj telefona validan i ako nije
-            // ispisujemo error
+            // Check if the phone number is valid, and if not, display an error
             if(!countryCodePicker.isValidFullNumber()){
                 phoneInput.setError("Phone number not valid");
                 return;
             }
-            // previmo intet tj. povezujemo 2 activity kako bi sa jednog activity-a
-            // mogli da saljemo podatke u drugi activity
+            // Prepare the intent to link two activities and send data from one to another
             Intent intent = new Intent(LoginPhoneNumberActivity.this,LoginOtpActivity.class);
             intent.putExtra("phone",countryCodePicker.getFullNumberWithPlus());
-            // nakon toga pokrecemo novi activiti :
+            // Start the new activity
             startActivity(intent);
         });
-
-
     }
 }

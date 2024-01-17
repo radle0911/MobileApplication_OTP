@@ -15,9 +15,10 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        // prilikom pokretanja zadrzat cemo se 3000 ms na SplashActivity
-        // a zatim cemo preci na LoginPhoneNumberAcitivity
-        // uradjeno sve sa ovom funkcijom ispot !
+        // Upon launch, we will stay on the SplashActivity for 3000 ms,
+        // and then transition to the LoginPhoneNumberAcitivity.
+        // All handled within this function below!
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

@@ -23,8 +23,6 @@ import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -39,7 +37,6 @@ public class LoginOtpActivity extends AppCompatActivity {
     String verificationCode;
     PhoneAuthProvider.ForceResendingToken resendToken;
 
-
     Button nextButton;
     ProgressBar progressBar;
     EditText otpInput;
@@ -51,44 +48,34 @@ public class LoginOtpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_otp);
 
-
         nextButton = findViewById(R.id.login_next_button);
         progressBar = findViewById(R.id.login_progress_bar_recived_otp);
         otpInput = findViewById(R.id.login_otp);
         resendOtp = findViewById(R.id.resend_otp_textview);
 
-
-        // uzimamo broj telefona koji smo proslijedili u LoginPhoneNumberActivity
+        // Retrieve the phone number passed from LoginPhoneNumberActivity
         phoneNum = getIntent().getExtras().getString("phone");
 
-        // saljemo otp
-        sendOtp(phoneNum,false);
+        // Send OTP
+        sendOtp(phoneNum, false);
 
         nextButton.setOnClickListener(v -> {
-            String enterOtp = otpInput.getText().toString(); // kada user unese otp
+            // When the user enters OTP, we check if the OTP code is correct
+            // and store it in the credential variable
+            String enterOtp = otpInput.getText().toString();
+            PhoneAuthCredential credential =  PhoneAuthProvider.getCredential(verificationCode, enterOtp);
 
-                                                                //s ovom funk. ispod provjeravamo
-                                                                // da li je otp code ispravan
-                                                                // te ga spremamo u varijablu
-                                                                // credential
-            PhoneAuthCredential credential =  PhoneAuthProvider.getCredential(verificationCode,enterOtp);
-
-            // nakon prvojere pozivamo singIn funkciju sa prosljedenim parametrom credential
+            // After verification, we call the signIn function with the passed credential parameter
             signIn(credential);
         });
 
         resendOtp.setOnClickListener(v -> {
-            sendOtp(phoneNum,true);
+            sendOtp(phoneNum, true);
         });
-
-
-
-
     }
 
-
     void sendOtp(String phoneNumber, boolean isResend){
-        setInProgres(true);
+        setInProgress(true);
         startResentTimer();
         PhoneAuthOptions.Builder builder = PhoneAuthOptions.newBuilder(mAuth)
                 .setPhoneNumber(phoneNumber)
@@ -97,25 +84,26 @@ public class LoginOtpActivity extends AppCompatActivity {
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-                        // kada je verifikacija kompletna aplikacija ce sama od sebe pozvati ovu funkciju
+                        // When verification is complete, the application will automatically call this function
                         signIn(phoneAuthCredential);
-                        setInProgres(false);
+                        setInProgress(false);
                     }
 
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
                         AndroidUtil.showToast(getApplicationContext(),"Verification failed");
-                        setInProgres(false);
+                        setInProgress(false);
                     }
 
-                    // funkcija ispod salje otp kod
+                    // This function sends the OTP code
                     @Override
                     public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                        super.onCodeSent(s, forceResendingToken); // ova metoda salje kod user-u
+                        super.onCodeSent(s, forceResendingToken);
+                        // This method sends the code to the user
                         verificationCode = s;
                         resendToken = forceResendingToken;
-                        AndroidUtil.showToast(getApplicationContext(),"OTP send successfully");
-                        setInProgres(false);
+                        AndroidUtil.showToast(getApplicationContext(),"OTP sent successfully");
+                        setInProgress(false);
                     }
                 });
 
@@ -128,27 +116,27 @@ public class LoginOtpActivity extends AppCompatActivity {
     }
 
     void signIn(PhoneAuthCredential phoneAuthCredential){
-        // login i idemo na sljedeci acitivity
-        setInProgres(true);
+        // Log in and go to the next activity
+        setInProgress(true);
         mAuth.signInWithCredential(phoneAuthCredential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                setInProgres(false);
+                setInProgress(false);
                 if(task.isSuccessful()){
-                    // ako je task uspjesan prelazimo sa jednog acitivirija u drugi
-                    // intent koristimo kako bi mogli dodati prijenos podatka tj broja telefona
+                    // If the task is successful, move from one activity to another
+                    // We use intent to be able to add data transfer, i.e., phone number
                     Intent intent = new Intent(LoginOtpActivity.this, LoginUserNameActivity.class);
-                    intent.putExtra("phone",phoneNum); //ubaciujemo phneNum sa imenom za phone
-                    startActivity(intent);  // idemo u drugi acitivity
+                    intent.putExtra("phone",phoneNum);
+                    startActivity(intent);
                 }else{
                     AndroidUtil.showToast(getApplicationContext(),"OTP verification failed");
                 }
             }
         });
-
     }
-    void setInProgres(boolean inProgres){
-        if(inProgres){ // provjeravamo da li je nesto u procesu
+
+    void setInProgress(boolean inProgress){
+        if(inProgress){
             progressBar.setVisibility(View.VISIBLE);
             nextButton.setVisibility(View.GONE);
         }else{
@@ -158,24 +146,23 @@ public class LoginOtpActivity extends AppCompatActivity {
     }
 
     void startResentTimer(){
-        resendOtp.setEnabled(false); // postavljamo da ne moze da klikne user
+        resendOtp.setEnabled(false);
         Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                //svake sekunde ce se pokratati ova funkcija
-                timeOutSec--; //postavili smo na 60L tj 60sec
-                //izvrsavamo prikaz za koliko sekundi mozemo izvrsiniti resend
+                // This function will be executed every second
+                timeOutSec--;
+                // We execute a display for how many seconds we can perform a resend
                 resendOtp.setText("Resend OTP in " + timeOutSec + "sec.");
                 if(timeOutSec == 0){
-                    timeOutSec = 60L; // postavljamo na pocetnu vrijednost
-                    timer.cancel(); // gasim tajmer i omogucavam da se moze stisnuti resend btn
+                    timeOutSec = 60L;
+                    timer.cancel();
                     runOnUiThread(() -> {
                         resendOtp.setEnabled(true);
                     });
                 }
             }
-        }, 0,1000);
+        }, 0, 1000);
     }
-
 }

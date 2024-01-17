@@ -29,7 +29,6 @@ public class LoginUserNameActivity extends AppCompatActivity {
 
     userModel user_model;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,13 +44,10 @@ public class LoginUserNameActivity extends AppCompatActivity {
         next.setOnClickListener((v) -> {
             setUsername();
         });
-
-
-
     }
 
-    void setInProgres(boolean inProgres){
-        if(inProgres){ // provjeravamo da li je nesto u procesu
+    void setInProgress(boolean inProgress){
+        if(inProgress){
             progressBar.setVisibility(View.VISIBLE);
             next.setVisibility(View.GONE);
         }else{
@@ -66,45 +62,39 @@ public class LoginUserNameActivity extends AppCompatActivity {
             usernameInput.setError("Username length should be at least 3 chars");
             return;
         }
-        setInProgres(true);
-        if(user_model != null){ // ako profil vec postoji tj ima ga u bazi podataka
+        setInProgress(true);
+        if(user_model != null){
             user_model.setUsername(username);
-        }else{ // ako prvi put pravimo profila
+        }else{
             user_model = new userModel(phoneNumber,username, Timestamp.now());
         }
 
-        // moramo dodati ove podate na firebase
         FirebaseUtil.currentUserDetails().set(user_model).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                setInProgres(false);
-                if(task.isSuccessful()){ // ako je sve uspjeno krecemo se u main activity
+                setInProgress(false);
+                if(task.isSuccessful()){
                     Intent intent = new Intent(LoginUserNameActivity.this,MainActivity.class);
-                    intent.setFlags( Intent.FLAG_ACTIVITY_NEW_TASK  | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
                 }
             }
         });
-
     }
 
     void getUsername(){
-        setInProgres(true);
+        setInProgress(true);
         FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                setInProgres(false); // ako je zavrseno
-
-                // ako je task uspjesan :
+                setInProgress(false);
                 if(task.isSuccessful()){
-                   user_model = task.getResult().toObject(userModel.class);
-                   if(user_model != null){ // ako je username prazan onda
-                       usernameInput.setText(user_model.getUsername()); // povalacimo username iz baze podataka
-                   }
+                    user_model = task.getResult().toObject(userModel.class);
+                    if(user_model != null){
+                        usernameInput.setText(user_model.getUsername());
+                    }
                 }
             }
         });
     }
-
-
 }

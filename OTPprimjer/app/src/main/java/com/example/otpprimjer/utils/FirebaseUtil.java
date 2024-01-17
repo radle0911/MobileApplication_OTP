@@ -6,7 +6,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.annotation.Documented;
 
-// koristim ovu klasu da storiram podatke usera
 public class FirebaseUtil {
 
     public static String currentUserId(){
@@ -18,7 +17,6 @@ public class FirebaseUtil {
         else{return false;}
     }
 
-    // tabela usera sa svom uid
     public static DocumentReference currentUserDetails(){
         return FirebaseFirestore.getInstance().collection("users").document(currentUserId());
     }
