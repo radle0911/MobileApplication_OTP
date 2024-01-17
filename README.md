@@ -17,5 +17,5 @@ Before running or configuring the project, it's crucial to understand and meet t
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/your-username/OTPexample.git
+   git clone https://github.com/your-username/OTPprimjer.git
    cd OTPprimjer
